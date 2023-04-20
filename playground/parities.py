@@ -1,25 +1,7 @@
 import math
 import struct
 
-
 hamming15_11BitPositions = [3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]
-
-def byte_array_to_bit_array(arr: bytearray):
-    bitArray = []
-    for byte in arr:
-        for i in range(7,-1, -1):
-            bitArray.append(byte>>i&1)
-    return(bitArray)
-
-def bit_array_to_byte_array(bits):
-    byteArray = []
-    byte = 0
-    for i in range(len(bits)):
-        byte |= bits[i] << 7 - i % 8
-        if (i + 1) % 8 == 0:
-            byteArray.append(byte)
-            byte = 0
-    return bytearray(byteArray)
 
 def calculate_parity_bits(word):
     result = 0
@@ -50,6 +32,23 @@ def calculate_parity_bits(word):
     # as a result we have 16-bits word 
     # where parity bits are on positions 0, 1, 2, 4, 8 and rest as 0
     return result
+
+def byte_array_to_bit_array(arr):
+    bitArray = []
+    for byte in arr:
+        for i in range(7,-1, -1):
+            bitArray.append(byte>>i&1)
+    return(bitArray)
+
+def bit_array_to_byte_array(bits):
+    byteArray = []
+    byte = 0
+    for i in range(len(bits)):
+        byte |= bits[i] << 7 - i % 8
+        if (i + 1) % 8 == 0:
+            byteArray.append(byte)
+            byte = 0
+    return bytearray(byteArray)
 
 def hamming_encode(buf: bytearray):
     # 8 * 16 hamming bits ({16,11})
@@ -123,41 +122,8 @@ def hamming_decode(buf: bytearray):
         b = bit_array_to_byte_array(bits)
         decoded[i*11: i*11 + 11] = b
 
-    return decoded, valid
+    return decoded
 
 
-def interlate128BitBlock(arr: bytearray) -> bytearray:
-    temp = byte_array_to_bit_array(arr)
-    result = [0] * len(temp)
-    for x in range(8):
-        for y in range(16):
-            result[y * 8 + x] = temp[x * 16 + y]
-    return bit_array_to_byte_array(result)
-
-def outerlate128BitBlock(arr: bytearray) -> bytearray:
-    temp = byte_array_to_bit_array(arr)
-    result = [0] * len(temp)
-    for x in range(16):
-        for y in range(8):
-            result[y * 16 + x] = temp[x * 8 + y]
-    return bit_array_to_byte_array(result)
-
-def interlate_whole(arr: bytearray) -> bytearray:
-    _128_bit_blocks = int(len(arr) / 16)
-    temp = bytearray(_128_bit_blocks * 16)
-    for i in range(_128_bit_blocks):
-        temp[i*16 : i*16 + 16] = interlate128BitBlock(arr[i*16 : i*16 + 16])
-    return temp
-
-def outerlate_whole(arr: bytearray) -> bytearray:
-    _128_bit_blocks = int(len(arr) / 16)
-    temp = bytearray(_128_bit_blocks * 16)
-    for i in range(_128_bit_blocks):
-        temp[i*16 : i*16 + 16] = outerlate128BitBlock(arr[i*16 : i*16 + 16])
-    return temp
-
-ham = hamming_encode("Ahh jebać ruchać palić legalizować kokaina".encode())
-inter = interlate_whole(ham)
-
-print(hamming_decode(outerlate_whole(inter)).decode(errors="ignore"))
-    
+ham = hamming_encode("elo320".encode())
+print(hamming_decode(ham).decode())

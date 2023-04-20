@@ -104,6 +104,7 @@ def hamming_decode(buf: bytearray):
         raise Exception("Invalid buffer, it must contain blocks of 16 bytes length")
     _128_bit_blocks = math.ceil(len(buf) / 16)
     decoded = bytearray(11 * _128_bit_blocks)
+    valid = True
     for i in range(_128_bit_blocks):
         bits = []
         block = buf[i*16 : i*16 + 16]
@@ -113,7 +114,7 @@ def hamming_decode(buf: bytearray):
             
             error_fix = error_check(word)
             if error_fix[0]:
-                print("UNRECOVABLE ERROR OCCURED!")
+                # print("UNRECOVABLE ERROR OCCURED!")
                 valid = False
             word = error_fix[1]
         # message fragment for bits
@@ -156,8 +157,4 @@ def outerlate_whole(arr: bytearray) -> bytearray:
         temp[i*16 : i*16 + 16] = outerlate128BitBlock(arr[i*16 : i*16 + 16])
     return temp
 
-ham = hamming_encode("Ahh jebać ruchać palić legalizować kokaina".encode())
-inter = interlate_whole(ham)
-
-print(hamming_decode(outerlate_whole(inter)).decode(errors="ignore"))
     
